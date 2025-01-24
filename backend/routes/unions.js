@@ -65,6 +65,7 @@ router.post("/", auth, admin, async (req, res) => {
     const union = await newUnion.save();
     res.status(201).json(union);
   } catch (err) {
+    console.log(err);
     res.status(500).json({ message: "Server error" });
   }
 });
