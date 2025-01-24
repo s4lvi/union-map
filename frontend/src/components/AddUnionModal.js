@@ -1,5 +1,5 @@
 // frontend/src/components/AddUnionModal.js
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -9,6 +9,7 @@ import {
   Button,
   Grid,
   Alert,
+  CircularProgress,
 } from "@mui/material";
 import { AuthContext } from "../context/AuthContext";
 import api from "../services/api";
@@ -26,6 +27,42 @@ function AddUnionModal({ open, handleClose, position, onAdd }) {
   });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [loadingAddress, setLoadingAddress] = useState(false);
+
+  // Function to perform reverse geocoding using OpenStreetMap's Nominatim API
+  const fetchAddress = async (lat, lng) => {
+    setLoadingAddress(true);
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`
+      );
+      if (!response.ok) {
+        throw new Error("Failed to fetch address information.");
+      }
+      const data = await response.json();
+      const address = data.address || {};
+
+      setForm((prevForm) => ({
+        ...prevForm,
+        city: address.city || address.town || address.village || "",
+        state: address.state || "",
+        zip: address.postcode || "",
+      }));
+    } catch (err) {
+      console.error(err);
+      setError("Unable to retrieve address from the provided location.");
+    } finally {
+      setLoadingAddress(false);
+    }
+  };
+
+  // useEffect to fetch address when modal opens and position is provided
+  useEffect(() => {
+    if (open && position) {
+      fetchAddress(position.lat, position.lng);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, position]);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -86,6 +123,11 @@ function AddUnionModal({ open, handleClose, position, onAdd }) {
             {success}
           </Alert>
         )}
+        {loadingAddress && (
+          <Grid container justifyContent="center" sx={{ mb: 2 }}>
+            <CircularProgress size={24} />
+          </Grid>
+        )}
         <Grid container spacing={2}>
           <Grid item xs={12}>
             <TextField
@@ -127,7 +169,7 @@ function AddUnionModal({ open, handleClose, position, onAdd }) {
               onChange={handleChange}
             />
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid item xs={12} sm={4}>
             <TextField
               label="City"
               name="city"
@@ -137,7 +179,7 @@ function AddUnionModal({ open, handleClose, position, onAdd }) {
               required
             />
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid item xs={12} sm={4}>
             <TextField
               label="State"
               name="state"
@@ -147,7 +189,7 @@ function AddUnionModal({ open, handleClose, position, onAdd }) {
               required
             />
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid item xs={12} sm={4}>
             <TextField
               label="ZIP Code"
               name="zip"
@@ -164,7 +206,12 @@ function AddUnionModal({ open, handleClose, position, onAdd }) {
         <Button onClick={handleClose} color="secondary">
           Cancel
         </Button>
-        <Button onClick={handleSubmit} variant="contained" color="primary">
+        <Button
+          onClick={handleSubmit}
+          variant="contained"
+          color="primary"
+          disabled={loadingAddress}
+        >
           Add Union
         </Button>
       </DialogActions>

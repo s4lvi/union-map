@@ -9,36 +9,58 @@ const admin = require("../middleware/admin");
 // @desc Get all unions or search with filters
 // @access Public
 router.get("/", async (req, res) => {
-  const { zip, city, type, latitude, longitude, radius } = req.query;
+  let { zip, city, type, radius } = req.query;
   let query = {};
+
+  if (!radius) {
+    radius = 10;
+  }
 
   if (type) {
     query.type = type;
-  }
-
-  if (zip) {
-    query.zip = zip;
   }
 
   if (city) {
     query.city = city;
   }
 
-  if (latitude && longitude && radius) {
-    query.location = {
-      $geoWithin: {
-        $centerSphere: [
-          [parseFloat(longitude), parseFloat(latitude)],
-          parseFloat(radius) / 3963.2, // radius in miles converted to radians
-        ],
-      },
-    };
+  if (zip) {
+    try {
+      // Geocode the ZIP code to get coordinates
+      const geoRes = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&postalcode=${zip}&country=us&limit=1`
+      );
+      const geoData = await geoRes.json();
+
+      if (geoData.length === 0) {
+        return res.status(400).json({ message: "Invalid ZIP code." });
+      }
+
+      const { lat, lon } = geoData[0];
+
+      // Add geospatial query to find unions within the radius
+      query.location = {
+        $geoWithin: {
+          $centerSphere: [
+            [parseFloat(lon), parseFloat(lat)],
+            parseFloat(radius) / 3963.2, // Convert miles to radians
+          ],
+        },
+      };
+    } catch (err) {
+      console.error("Geocoding error:", err);
+      return res.status(500).json({ message: "Error processing geocoding." });
+    }
   }
+
+  console.log("Constructed Query:", query);
 
   try {
     const unions = await Union.find(query);
+    console.log(`Found ${unions.length} unions matching the criteria.`);
     res.json(unions);
   } catch (err) {
+    console.error("Error fetching unions:", err);
     res.status(500).json({ message: "Server error" });
   }
 });

@@ -26,16 +26,14 @@ function SearchFilter({ setUnions }) {
   };
 
   const handleSearch = async () => {
-    const { zip, city, type, radius, latitude, longitude } = filters;
+    const { zip, city, type, radius } = filters;
     const params = {};
 
     if (zip) params.zip = zip;
     if (city) params.city = city;
     if (type) params.type = type;
-    if (radius && latitude && longitude) {
+    if (radius) {
       params.radius = radius;
-      params.latitude = latitude;
-      params.longitude = longitude;
     }
 
     try {
@@ -91,26 +89,6 @@ function SearchFilter({ setUnions }) {
           name="radius"
           type="number"
           value={filters.radius}
-          onChange={handleChange}
-          fullWidth
-        />
-      </Grid>
-      <Grid item xs={12} sm={6} md={2}>
-        <TextField
-          label="Latitude"
-          name="latitude"
-          type="number"
-          value={filters.latitude}
-          onChange={handleChange}
-          fullWidth
-        />
-      </Grid>
-      <Grid item xs={12} sm={6} md={2}>
-        <TextField
-          label="Longitude"
-          name="longitude"
-          type="number"
-          value={filters.longitude}
           onChange={handleChange}
           fullWidth
         />

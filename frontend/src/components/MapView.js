@@ -11,7 +11,6 @@ import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { AuthContext } from "../context/AuthContext";
 import AddUnionModal from "./AddUnionModal";
-import { Tooltip } from "@mui/material";
 
 // Fix for default marker icon issues with webpack
 delete L.Icon.Default.prototype._getIconUrl;
