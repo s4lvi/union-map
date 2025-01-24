@@ -76,25 +76,6 @@ function SearchFilter({ setUnions }) {
       </Grid>
       <Grid item xs={12} sm={6} md={2}>
         <FormControl fullWidth>
-          <InputLabel id="type-label">Union Type</InputLabel>
-          <Select
-            labelId="type-label"
-            name="type"
-            value={filters.type}
-            label="Union Type"
-            onChange={handleChange}
-          >
-            <MenuItem value="">
-              <em>None</em>
-            </MenuItem>
-            <MenuItem value="Type1">Type1</MenuItem>
-            <MenuItem value="Type2">Type2</MenuItem>
-            {/* Add more types as needed */}
-          </Select>
-        </FormControl>
-      </Grid>
-      <Grid item xs={12} sm={6} md={2}>
-        <FormControl fullWidth>
           <InputLabel id="sector-filter-label">Sector</InputLabel>
           <Select
             labelId="sector-filter-label"
