@@ -75,6 +75,14 @@ function MapView({ center, zoomLevel, unions, setUnions }) {
               <br />
               Type: {union.type}
               <br />
+              Sector: {union.sector}
+              <br />
+              {union.association && (
+                <>
+                  Association: {union.association}
+                  <br />
+                </>
+              )}
               {union.site && (
                 <>
                   <a

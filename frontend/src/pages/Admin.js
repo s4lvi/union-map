@@ -21,19 +21,37 @@ import {
   DialogActions,
   TextField,
   Grid,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Select,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import api from "../services/api";
+import EditUnionModal from "../components/EditUnionModal";
+
+// Define sector options
+const sectorOptions = [
+  "Manufacturing",
+  "Agriculture",
+  "Healthcare",
+  "Service",
+  "Other",
+];
 
 function Admin() {
   const { auth } = useContext(AuthContext);
   const [unions, setUnions] = useState([]);
   const [error, setError] = useState("");
   const [openAddDialog, setOpenAddDialog] = useState(false);
+  const [openEditDialog, setOpenEditDialog] = useState(false);
+  const [selectedUnion, setSelectedUnion] = useState(null);
   const [form, setForm] = useState({
     name: "",
     type: "",
+    sector: "",
+    association: "",
     site: "",
     info: "",
     address: "",
@@ -77,6 +95,8 @@ function Admin() {
     setForm({
       name: "",
       type: "",
+      sector: "",
+      association: "",
       site: "",
       info: "",
       address: "",
@@ -95,10 +115,21 @@ function Admin() {
   };
 
   const handleAddUnion = async () => {
-    const { name, type, site, info, address, city, state, zip } = form;
+    const {
+      name,
+      type,
+      sector,
+      association,
+      site,
+      info,
+      address,
+      city,
+      state,
+      zip,
+    } = form;
 
     // Basic validation
-    if (!name || !type || !address || !city || !state || !zip) {
+    if (!name || !type || !sector || !address || !city || !state || !zip) {
       setFormError("Please fill in all required fields.");
       return;
     }
@@ -108,7 +139,7 @@ function Admin() {
       const geoRes = await fetch(
         `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
           address + " " + city + " " + state + " " + zip
-        )}&addressdetails=1`
+        )}&addressdetails=1&limit=1`
       );
 
       const geoData = await geoRes.json();
@@ -118,23 +149,14 @@ function Admin() {
         return;
       }
 
-      const { lat, lon, address: geoAddress } = geoData[0];
-
-      // Optionally, auto-fill city, state, and zip from geocoding results
-      // Uncomment the following lines if you want to auto-fill these fields
-      /*
-      setForm((prevForm) => ({
-        ...prevForm,
-        city: geoAddress.city || geoAddress.town || geoAddress.village || prevForm.city,
-        state: geoAddress.state || prevForm.state,
-        zip: geoAddress.postcode || prevForm.zip,
-      }));
-      */
+      const { lat, lon } = geoData[0];
 
       // Prepare union data
       const unionData = {
         name,
         type,
+        sector,
+        association,
         site,
         info,
         address,
@@ -157,6 +179,24 @@ function Admin() {
       console.error(err);
       setFormError(err.response?.data?.message || "Failed to add union.");
     }
+  };
+
+  const handleOpenEditDialog = (union) => {
+    setSelectedUnion(union);
+    setOpenEditDialog(true);
+  };
+
+  const handleCloseEditDialog = () => {
+    setOpenEditDialog(false);
+    setSelectedUnion(null);
+  };
+
+  const handleUpdateUnion = (updatedUnion) => {
+    setUnions(
+      unions.map((union) =>
+        union._id === updatedUnion._id ? updatedUnion : union
+      )
+    );
   };
 
   if (!auth.user) {
@@ -191,6 +231,8 @@ function Admin() {
             <TableRow>
               <TableCell>Union Name</TableCell>
               <TableCell>Type</TableCell>
+              <TableCell>Sector</TableCell>
+              <TableCell>Association</TableCell>
               <TableCell>City</TableCell>
               <TableCell>State</TableCell>
               <TableCell>ZIP</TableCell>
@@ -202,12 +244,18 @@ function Admin() {
               <TableRow key={union._id}>
                 <TableCell>{union.name}</TableCell>
                 <TableCell>{union.type}</TableCell>
+                <TableCell>{union.sector}</TableCell>
+                <TableCell>{union.association}</TableCell>
                 <TableCell>{union.city}</TableCell>
                 <TableCell>{union.state}</TableCell>
                 <TableCell>{union.zip}</TableCell>
                 <TableCell>
-                  {/* Placeholder for Edit Functionality */}
-                  <IconButton color="primary" aria-label="edit">
+                  {/* Edit Button */}
+                  <IconButton
+                    color="primary"
+                    aria-label="edit"
+                    onClick={() => handleOpenEditDialog(union)}
+                  >
                     <EditIcon />
                   </IconButton>
                   {/* Delete Button */}
@@ -223,7 +271,7 @@ function Admin() {
             ))}
             {unions.length === 0 && (
               <TableRow>
-                <TableCell colSpan={6} align="center">
+                <TableCell colSpan={8} align="center">
                   No unions found.
                 </TableCell>
               </TableRow>
@@ -270,6 +318,33 @@ function Admin() {
                 value={form.type}
                 onChange={handleFormChange}
                 required
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <FormControl fullWidth required>
+                <InputLabel id="sector-label">Sector</InputLabel>
+                <Select
+                  labelId="sector-label"
+                  name="sector"
+                  value={form.sector}
+                  label="Sector"
+                  onChange={handleFormChange}
+                >
+                  {sectorOptions.map((sector) => (
+                    <MenuItem key={sector} value={sector}>
+                      {sector}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                label="Association"
+                name="association"
+                fullWidth
+                value={form.association}
+                onChange={handleFormChange}
               />
             </Grid>
             <Grid item xs={12}>
@@ -344,6 +419,14 @@ function Admin() {
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Edit Union Modal */}
+      <EditUnionModal
+        open={openEditDialog}
+        handleClose={handleCloseEditDialog}
+        union={selectedUnion}
+        onUpdate={handleUpdateUnion}
+      />
     </Container>
   );
 }

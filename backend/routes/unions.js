@@ -4,12 +4,13 @@ const router = express.Router();
 const Union = require("../models/Union");
 const auth = require("../middleware/auth");
 const admin = require("../middleware/admin");
+const fetch = require("node-fetch"); // Ensure you have node-fetch installed
 
 // @route GET /api/unions
 // @desc Get all unions or search with filters
 // @access Public
 router.get("/", async (req, res) => {
-  let { zip, city, type, radius } = req.query;
+  let { zip, city, type, sector, radius } = req.query;
   let query = {};
 
   if (!radius) {
@@ -18,6 +19,10 @@ router.get("/", async (req, res) => {
 
   if (type) {
     query.type = type;
+  }
+
+  if (sector) {
+    query.sector = sector;
   }
 
   if (city) {
@@ -69,13 +74,28 @@ router.get("/", async (req, res) => {
 // @desc Add a new union
 // @access Private (Admin)
 router.post("/", auth, admin, async (req, res) => {
-  const { name, type, site, info, city, state, zip, coordinates } = req.body;
+  const {
+    name,
+    type,
+    sector,
+    association,
+    site,
+    info,
+    address,
+    city,
+    state,
+    zip,
+    coordinates,
+  } = req.body;
   try {
     const newUnion = new Union({
       name,
       type,
+      sector,
+      association,
       site,
       info,
+      address,
       city,
       state,
       zip,
@@ -96,7 +116,19 @@ router.post("/", auth, admin, async (req, res) => {
 // @desc Update a union
 // @access Private (Admin)
 router.put("/:id", auth, admin, async (req, res) => {
-  const { name, type, site, info, city, state, zip, coordinates } = req.body;
+  const {
+    name,
+    type,
+    sector,
+    association,
+    site,
+    info,
+    address,
+    city,
+    state,
+    zip,
+    coordinates,
+  } = req.body;
   try {
     let union = await Union.findById(req.params.id);
     if (!union) {
@@ -104,8 +136,11 @@ router.put("/:id", auth, admin, async (req, res) => {
     }
     union.name = name || union.name;
     union.type = type || union.type;
+    union.sector = sector || union.sector;
+    union.association = association || union.association;
     union.site = site || union.site;
     union.info = info || union.info;
+    union.address = address || union.address;
     union.city = city || union.city;
     union.state = state || union.state;
     union.zip = zip || union.zip;

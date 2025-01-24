@@ -11,14 +11,22 @@ import {
 } from "@mui/material";
 import api from "../services/api";
 
+// Define sector options
+const sectorOptions = [
+  "Manufacturing",
+  "Agriculture",
+  "Healthcare",
+  "Service",
+  "Other",
+];
+
 function SearchFilter({ setUnions }) {
   const [filters, setFilters] = useState({
     zip: "",
     city: "",
     type: "",
+    sector: "",
     radius: "",
-    latitude: "",
-    longitude: "",
   });
 
   const handleChange = (e) => {
@@ -26,12 +34,13 @@ function SearchFilter({ setUnions }) {
   };
 
   const handleSearch = async () => {
-    const { zip, city, type, radius } = filters;
+    const { zip, city, type, sector, radius } = filters;
     const params = {};
 
     if (zip) params.zip = zip;
     if (city) params.city = city;
     if (type) params.type = type;
+    if (sector) params.sector = sector;
     if (radius) {
       params.radius = radius;
     }
@@ -41,6 +50,7 @@ function SearchFilter({ setUnions }) {
       setUnions(res.data);
     } catch (err) {
       console.error(err);
+      // Optionally, handle errors (e.g., display a message)
     }
   };
 
@@ -80,6 +90,27 @@ function SearchFilter({ setUnions }) {
             <MenuItem value="Type1">Type1</MenuItem>
             <MenuItem value="Type2">Type2</MenuItem>
             {/* Add more types as needed */}
+          </Select>
+        </FormControl>
+      </Grid>
+      <Grid item xs={12} sm={6} md={2}>
+        <FormControl fullWidth>
+          <InputLabel id="sector-filter-label">Sector</InputLabel>
+          <Select
+            labelId="sector-filter-label"
+            name="sector"
+            value={filters.sector}
+            label="Sector"
+            onChange={handleChange}
+          >
+            <MenuItem value="">
+              <em>None</em>
+            </MenuItem>
+            {sectorOptions.map((sector) => (
+              <MenuItem key={sector} value={sector}>
+                {sector}
+              </MenuItem>
+            ))}
           </Select>
         </FormControl>
       </Grid>

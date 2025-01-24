@@ -1,4 +1,4 @@
-// frontend/src/components/AddUnionModal.js
+// frontend/src/components/EditUnionModal.js
 import React, { useState, useContext, useEffect } from "react";
 import {
   Dialog,
@@ -27,7 +27,7 @@ const sectorOptions = [
   "Other",
 ];
 
-function AddUnionModal({ open, handleClose, position, onAdd }) {
+function EditUnionModal({ open, handleClose, union, onUpdate }) {
   const { auth } = useContext(AuthContext);
   const [form, setForm] = useState({
     name: "",
@@ -43,43 +43,24 @@ function AddUnionModal({ open, handleClose, position, onAdd }) {
   });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const [loadingAddress, setLoadingAddress] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  // Function to perform reverse geocoding using OpenStreetMap's Nominatim API
-  const fetchAddress = async (lat, lng) => {
-    setLoadingAddress(true);
-    try {
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`
-      );
-      if (!response.ok) {
-        throw new Error("Failed to fetch address information.");
-      }
-      const data = await response.json();
-      const address = data.address || {};
-
-      setForm((prevForm) => ({
-        ...prevForm,
-        address: address.road || "", // Assuming 'road' as the address
-        city: address.city || address.town || address.village || "",
-        state: address.state || "",
-        zip: address.postcode || "",
-      }));
-    } catch (err) {
-      console.error(err);
-      setError("Unable to retrieve address from the provided location.");
-    } finally {
-      setLoadingAddress(false);
-    }
-  };
-
-  // useEffect to fetch address when modal opens and position is provided
   useEffect(() => {
-    if (open && position) {
-      fetchAddress(position.lat, position.lng);
+    if (union) {
+      setForm({
+        name: union.name || "",
+        type: union.type || "",
+        sector: union.sector || "",
+        association: union.association || "",
+        site: union.site || "",
+        info: union.info || "",
+        address: union.address || "",
+        city: union.city || "",
+        state: union.state || "",
+        zip: union.zip || "",
+      });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, position]);
+  }, [union]);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -90,48 +71,47 @@ function AddUnionModal({ open, handleClose, position, onAdd }) {
   const handleSubmit = async () => {
     // Basic validation
     const { name, type, sector, city, state, zip, address } = form;
-    if (!name || !type || !sector || !city || !state || !zip || !address) {
+    if (!name || !type || !sector || !city || !state || !zip) {
       setError("Please fill in all required fields.");
       return;
     }
 
-    // Prepare coordinates: [longitude, latitude]
-    const coordinates = [position.lng, position.lat];
+    setLoading(true);
 
     try {
-      const res = await api.post("/unions", {
-        ...form,
-        coordinates,
-      });
+      // If address has changed, you might want to re-geocode
+      // For simplicity, assuming coordinates remain the same
+      // If address changes, implement geocoding here
 
-      setSuccess("Union added successfully.");
-      onAdd(res.data); // Callback to add the new union to the map
-      // Optionally, reset the form
-      setForm({
-        name: "",
-        type: "",
-        sector: "",
-        association: "",
-        site: "",
-        info: "",
-        address: "",
-        city: "",
-        state: "",
-        zip: "",
-      });
+      // Prepare updated data
+      const updatedData = {
+        ...form,
+      };
+
+      // Send PUT request to update the union
+      const res = await api.put(`/unions/${union._id}`, updatedData);
+
+      setSuccess("Union updated successfully.");
+      onUpdate(res.data); // Callback to update the union in the Admin page
+
       // Close the modal after a short delay
       setTimeout(() => {
         handleClose();
         setSuccess("");
       }, 1500);
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to add union.");
+      console.error(err);
+      setError(err.response?.data?.message || "Failed to update union.");
+    } finally {
+      setLoading(false);
     }
   };
 
+  if (!union) return null; // Do not render if no union is selected
+
   return (
     <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
-      <DialogTitle>Add New Union</DialogTitle>
+      <DialogTitle>Edit Union</DialogTitle>
       <DialogContent>
         {error && (
           <Alert severity="error" sx={{ mb: 2 }}>
@@ -143,7 +123,7 @@ function AddUnionModal({ open, handleClose, position, onAdd }) {
             {success}
           </Alert>
         )}
-        {loadingAddress && (
+        {loading && (
           <Grid container justifyContent="center" sx={{ mb: 2 }}>
             <CircularProgress size={24} />
           </Grid>
@@ -223,7 +203,7 @@ function AddUnionModal({ open, handleClose, position, onAdd }) {
               fullWidth
               value={form.address}
               onChange={handleChange}
-              helperText="Enter the full address to automatically set location."
+              helperText="Enter the full address."
             />
           </Grid>
           <Grid item xs={12} sm={4}>
@@ -267,13 +247,13 @@ function AddUnionModal({ open, handleClose, position, onAdd }) {
           onClick={handleSubmit}
           variant="contained"
           color="primary"
-          disabled={loadingAddress}
+          disabled={loading}
         >
-          Add Union
+          Update Union
         </Button>
       </DialogActions>
     </Dialog>
   );
 }
 
-export default AddUnionModal;
+export default EditUnionModal;

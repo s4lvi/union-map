@@ -4,6 +4,11 @@ const mongoose = require("mongoose");
 const unionSchema = new mongoose.Schema({
   name: { type: String, required: true },
   type: { type: String, required: true },
+  sector: {
+    type: String,
+    enum: ["Manufacturing", "Agriculture", "Healthcare", "Service", "Other"],
+  },
+  association: { type: String },
   site: { type: String },
   info: { type: String },
   location: {
