@@ -1,8 +1,7 @@
 // frontend/src/pages/Home.js
 import React, { useState, useEffect, useContext } from "react";
-import { Container, Box, Typography, Alert, Grid } from "@mui/material";
+import { Container, Box, Alert } from "@mui/material";
 import MapView from "../components/MapView";
-import StateSelector from "../components/StateSelector";
 import SearchFilter from "../components/SearchFilter";
 import UnionList from "../components/UnionList"; // Import the UnionList component
 import api from "../services/api";
