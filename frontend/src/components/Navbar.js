@@ -52,7 +52,7 @@ function Navbar() {
           component="div"
           sx={{
             flexGrow: 1,
-            ml: 2, // Left margin to separate from the logo
+            ml: 3, // Left margin to separate from the logo
             fontWeight: "bold",
             color: "#fff", // White text for contrast
           }}
