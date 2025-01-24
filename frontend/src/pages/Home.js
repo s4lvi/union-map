@@ -1,9 +1,10 @@
 // frontend/src/pages/Home.js
 import React, { useState, useEffect, useContext } from "react";
-import { Container, Box, Typography, Alert } from "@mui/material";
+import { Container, Box, Typography, Alert, Grid } from "@mui/material";
 import MapView from "../components/MapView";
 import StateSelector from "../components/StateSelector";
 import SearchFilter from "../components/SearchFilter";
+import UnionList from "../components/UnionList"; // Import the UnionList component
 import api from "../services/api";
 import { AuthContext } from "../context/AuthContext";
 
@@ -13,6 +14,7 @@ function Home() {
   const [zoomLevel, setZoomLevel] = useState(4);
   const [unions, setUnions] = useState([]);
   const [error, setError] = useState("");
+  const [hasSearched, setHasSearched] = useState(false); // State to track if a search has been performed
 
   useEffect(() => {
     fetchUnions();
@@ -27,6 +29,12 @@ function Home() {
     }
   };
 
+  // Handler to be passed to SearchFilter to manage search state
+  const handleSearch = (filteredUnions) => {
+    setUnions(filteredUnions);
+    setHasSearched(true);
+  };
+
   return (
     <Container maxWidth="xl" sx={{ padding: "20px 0" }}>
       {error && (
@@ -35,9 +43,12 @@ function Home() {
         </Alert>
       )}
       <Box display="flex" flexDirection="column" gap={2} mb={2}>
-        <StateSelector setCenter={setCenter} setZoomLevel={setZoomLevel} />
-        <SearchFilter setUnions={setUnions} />
+        <SearchFilter setUnions={handleSearch} />
       </Box>
+
+      {/* Conditionally render UnionList when a search has been performed */}
+      {hasSearched && <UnionList unions={unions} />}
+
       <MapView
         center={center}
         zoomLevel={zoomLevel}
