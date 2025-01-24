@@ -1,0 +1,10 @@
+{
+    "name": "trade-unions-map",
+    "version": "1.0.0",
+    "private": true,
+    "scripts": {
+      "start": "node backend/server.js",
+      "heroku-postbuild": "npm install --prefix frontend && npm run build --prefix frontend"
+    }
+  }
+  
