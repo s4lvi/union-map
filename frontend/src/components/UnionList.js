@@ -60,16 +60,11 @@ function UnionList({ unions }) {
                 secondary={
                   <>
                     <Typography variant="body2" color="textSecondary">
-                      Type: {union.type}
+                      Type: {union.designation_name} {union.designation_number}
                     </Typography>
                     <Typography variant="body2" color="textSecondary">
                       Sector: {union.sector}
                     </Typography>
-                    {union.association && (
-                      <Typography variant="body2" color="textSecondary">
-                        Association: {union.association}
-                      </Typography>
-                    )}
                     <Typography variant="body2" color="textSecondary">
                       <LocationOnIcon fontSize="small" /> {union.city},{" "}
                       {union.state} {union.zip}

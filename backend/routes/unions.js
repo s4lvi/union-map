@@ -1,37 +1,29 @@
-// backend/routes/unions.js
 const express = require("express");
 const router = express.Router();
 const Union = require("../models/Union");
 const auth = require("../middleware/auth");
 const admin = require("../middleware/admin");
-const fetch = require("node-fetch"); // Ensure you have node-fetch installed
+const fetch = require("node-fetch");
 
 // @route GET /api/unions
 // @desc Get all unions or search with filters
 // @access Public
 router.get("/", async (req, res) => {
-  let { zip, city, type, sector, radius } = req.query;
+  let { city, state, sector, zip, radius } = req.query;
   let query = {};
 
-  if (!radius) {
-    radius = 10;
-  }
-
-  if (type) {
-    query.type = type;
-  }
+  // Default radius to 10 miles
+  radius = radius || 10;
 
   if (sector) {
-    query.sector = sector;
+    query.sector = { $in: sector.split(",") }; // Allow multiple sectors
   }
 
-  if (city) {
-    query.city = city;
-  }
+  if (city) query.city = new RegExp(city, "i");
+  if (state) query.state = new RegExp(state, "i");
 
   if (zip) {
     try {
-      // Geocode the ZIP code to get coordinates
       const geoRes = await fetch(
         `https://nominatim.openstreetmap.org/search?format=json&postalcode=${zip}&country=us&limit=1`
       );
@@ -42,13 +34,11 @@ router.get("/", async (req, res) => {
       }
 
       const { lat, lon } = geoData[0];
-
-      // Add geospatial query to find unions within the radius
       query.location = {
         $geoWithin: {
           $centerSphere: [
             [parseFloat(lon), parseFloat(lat)],
-            parseFloat(radius) / 3963.2, // Convert miles to radians
+            radius / 3963.2, // Convert miles to radians
           ],
         },
       };
@@ -58,11 +48,10 @@ router.get("/", async (req, res) => {
     }
   }
 
-  console.log("Constructed Query:", query);
-
   try {
-    const unions = await Union.find(query);
-    console.log(`Found ${unions.length} unions matching the criteria.`);
+    const unions = await Union.find(query)
+      .select("-__v") // Exclude version key
+      .lean();
     res.json(unions);
   } catch (err) {
     console.error("Error fetching unions:", err);
@@ -76,38 +65,50 @@ router.get("/", async (req, res) => {
 router.post("/", auth, admin, async (req, res) => {
   const {
     name,
-    type,
+    designation_name,
+    designation_number,
+    unit,
     sector,
-    association,
-    site,
+    website,
     info,
-    address,
     city,
     state,
     zip,
     coordinates,
   } = req.body;
+
+  // Validate required fields
+  if (!name || !city || !state || !coordinates) {
+    return res.status(400).json({ message: "Missing required fields" });
+  }
+
   try {
     const newUnion = new Union({
       name,
-      type,
+      designation_name,
+      designation_number,
+      unit,
       sector,
-      association,
-      site,
+      website,
       info,
-      address,
       city,
       state,
       zip,
       location: {
         type: "Point",
-        coordinates, // [longitude, latitude]
+        coordinates: Array.isArray(coordinates)
+          ? coordinates
+          : coordinates.split(",").map(Number),
       },
     });
+
     const union = await newUnion.save();
     res.status(201).json(union);
   } catch (err) {
-    console.log(err);
+    console.error(err);
+    if (err.name === "ValidationError") {
+      return res.status(400).json({ message: err.message });
+    }
     res.status(500).json({ message: "Server error" });
   }
 });
@@ -116,43 +117,46 @@ router.post("/", auth, admin, async (req, res) => {
 // @desc Update a union
 // @access Private (Admin)
 router.put("/:id", auth, admin, async (req, res) => {
-  const {
-    name,
-    type,
-    sector,
-    association,
-    site,
-    info,
-    address,
-    city,
-    state,
-    zip,
-    coordinates,
-  } = req.body;
   try {
-    let union = await Union.findById(req.params.id);
+    const union = await Union.findById(req.params.id);
     if (!union) {
       return res.status(404).json({ message: "Union not found" });
     }
-    union.name = name || union.name;
-    union.type = type || union.type;
-    union.sector = sector || union.sector;
-    union.association = association || union.association;
-    union.site = site || union.site;
-    union.info = info || union.info;
-    union.address = address || union.address;
-    union.city = city || union.city;
-    union.state = state || union.state;
-    union.zip = zip || union.zip;
-    if (coordinates) {
-      union.location = {
-        type: "Point",
-        coordinates,
-      };
-    }
-    union = await union.save();
-    res.json(union);
+
+    // Update allowed fields
+    const updatableFields = [
+      "name",
+      "designation_name",
+      "designation_number",
+      "unit",
+      "sector",
+      "website",
+      "info",
+      "city",
+      "state",
+      "zip",
+      "coordinates",
+    ];
+
+    updatableFields.forEach((field) => {
+      if (req.body[field] !== undefined) {
+        if (field === "coordinates") {
+          union.location.coordinates = Array.isArray(req.body[field])
+            ? req.body[field]
+            : req.body[field].split(",").map(Number);
+        } else {
+          union[field] = req.body[field];
+        }
+      }
+    });
+
+    const updatedUnion = await union.save();
+    res.json(updatedUnion);
   } catch (err) {
+    console.error(err);
+    if (err.name === "ValidationError") {
+      return res.status(400).json({ message: err.message });
+    }
     res.status(500).json({ message: "Server error" });
   }
 });
@@ -166,9 +170,9 @@ router.delete("/:id", auth, admin, async (req, res) => {
     if (!union) {
       return res.status(404).json({ message: "Union not found" });
     }
-    res.json({ message: "Union removed" });
+    res.json({ message: "Union removed successfully" });
   } catch (err) {
-    console.error(err); // Use console.error for error logging
+    console.error(err);
     res.status(500).json({ message: "Server error" });
   }
 });

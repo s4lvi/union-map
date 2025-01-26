@@ -140,16 +140,8 @@ function MapView({ center, zoomLevel, unions, setUnions }) {
             <Popup>
               <strong>{union.name}</strong>
               <br />
-              Type: {union.type}
+              Type: {union.designation_name} {union.designation_number}
               <br />
-              Sector: {union.sector}
-              <br />
-              {union.association && (
-                <>
-                  Association: {union.association}
-                  <br />
-                </>
-              )}
               {union.site && (
                 <>
                   <a
