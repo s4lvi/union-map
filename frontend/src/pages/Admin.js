@@ -117,7 +117,8 @@ function Admin() {
   const handleAddUnion = async () => {
     const {
       name,
-      type,
+      designation_name,
+      designation_number,
       sector,
       association,
       site,
@@ -129,7 +130,7 @@ function Admin() {
     } = form;
 
     // Basic validation
-    if (!name || !type || !sector || !address || !city || !state || !zip) {
+    if (!name || !sector || !address || !city || !state || !zip) {
       setFormError("Please fill in all required fields.");
       return;
     }
@@ -154,9 +155,9 @@ function Admin() {
       // Prepare union data
       const unionData = {
         name,
-        type,
+        designation_name,
+        designation_number,
         sector,
-        association,
         site,
         info,
         address,
@@ -230,9 +231,9 @@ function Admin() {
           <TableHead>
             <TableRow>
               <TableCell>Union Name</TableCell>
-              <TableCell>Type</TableCell>
+              <TableCell>Designation Name</TableCell>
+              <TableCell>Designation Number</TableCell>
               <TableCell>Sector</TableCell>
-              <TableCell>Association</TableCell>
               <TableCell>City</TableCell>
               <TableCell>State</TableCell>
               <TableCell>ZIP</TableCell>
@@ -243,9 +244,9 @@ function Admin() {
             {unions.map((union) => (
               <TableRow key={union._id}>
                 <TableCell>{union.name}</TableCell>
-                <TableCell>{union.type}</TableCell>
+                <TableCell>{union.designation_name}</TableCell>
+                <TableCell>{union.designation_number}</TableCell>
                 <TableCell>{union.sector}</TableCell>
-                <TableCell>{union.association}</TableCell>
                 <TableCell>{union.city}</TableCell>
                 <TableCell>{union.state}</TableCell>
                 <TableCell>{union.zip}</TableCell>
@@ -312,10 +313,20 @@ function Admin() {
             </Grid>
             <Grid item xs={12}>
               <TextField
-                label="Type"
-                name="type"
+                label="Designation Name"
+                name="designation_name"
                 fullWidth
-                value={form.type}
+                value={form.designation_name}
+                onChange={handleFormChange}
+                required
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                label="Designation Number"
+                name="designation_number"
+                fullWidth
+                value={form.designation_number}
                 onChange={handleFormChange}
                 required
               />
@@ -337,15 +348,6 @@ function Admin() {
                   ))}
                 </Select>
               </FormControl>
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                label="Association"
-                name="association"
-                fullWidth
-                value={form.association}
-                onChange={handleFormChange}
-              />
             </Grid>
             <Grid item xs={12}>
               <TextField

@@ -161,10 +161,20 @@ function AddUnionModal({ open, handleClose, position, onAdd }) {
           </Grid>
           <Grid item xs={12}>
             <TextField
-              label="Type"
-              name="type"
+              label="Designation Name"
+              name="designation_name"
               fullWidth
-              value={form.type}
+              value={form.designation_name}
+              onChange={handleChange}
+              required
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              label="Designation Type"
+              name="designation_number"
+              fullWidth
+              value={form.designation_number}
               onChange={handleChange}
               required
             />
@@ -186,15 +196,6 @@ function AddUnionModal({ open, handleClose, position, onAdd }) {
                 ))}
               </Select>
             </FormControl>
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              label="Association"
-              name="association"
-              fullWidth
-              value={form.association}
-              onChange={handleChange}
-            />
           </Grid>
           <Grid item xs={12}>
             <TextField

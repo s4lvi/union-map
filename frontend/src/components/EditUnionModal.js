@@ -31,9 +31,9 @@ function EditUnionModal({ open, handleClose, union, onUpdate }) {
   const { auth } = useContext(AuthContext);
   const [form, setForm] = useState({
     name: "",
-    type: "",
+    designation_name: "",
+    designation_number: "",
     sector: "",
-    association: "",
     site: "",
     info: "",
     address: "",
@@ -49,9 +49,9 @@ function EditUnionModal({ open, handleClose, union, onUpdate }) {
     if (union) {
       setForm({
         name: union.name || "",
-        type: union.type || "",
+        designation_name: union.designation_name || "",
+        designation_number: union.designation_number || "",
         sector: union.sector || "",
-        association: union.association || "",
         site: union.site || "",
         info: union.info || "",
         address: union.address || "",
@@ -70,8 +70,17 @@ function EditUnionModal({ open, handleClose, union, onUpdate }) {
 
   const handleSubmit = async () => {
     // Basic validation
-    const { name, type, sector, city, state, zip, address } = form;
-    if (!name || !type || !sector || !city || !state || !zip) {
+    const {
+      name,
+      designation_name,
+      designation_number,
+      sector,
+      city,
+      state,
+      zip,
+      address,
+    } = form;
+    if (!name || !sector || !city || !state || !zip) {
       setError("Please fill in all required fields.");
       return;
     }
@@ -141,10 +150,20 @@ function EditUnionModal({ open, handleClose, union, onUpdate }) {
           </Grid>
           <Grid item xs={12}>
             <TextField
-              label="Type"
-              name="type"
+              label="Designation Name"
+              name="designation_name"
               fullWidth
-              value={form.type}
+              value={form.designation_name}
+              onChange={handleChange}
+              required
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              label="Designation Number"
+              name="designation_number"
+              fullWidth
+              value={form.designation_number}
               onChange={handleChange}
               required
             />
@@ -166,15 +185,6 @@ function EditUnionModal({ open, handleClose, union, onUpdate }) {
                 ))}
               </Select>
             </FormControl>
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              label="Association"
-              name="association"
-              fullWidth
-              value={form.association}
-              onChange={handleChange}
-            />
           </Grid>
           <Grid item xs={12}>
             <TextField
