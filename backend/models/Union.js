@@ -5,7 +5,6 @@ const unionSchema = new mongoose.Schema({
   name: { type: String, required: true },
   designation_name: { type: String },
   designation_number: { type: String },
-  unit: { type: String },
   sector: {
     type: String,
     enum: ["Manufacturing", "Agriculture", "Healthcare", "Service", "Other"],

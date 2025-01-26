@@ -31,9 +31,9 @@ function AddUnionModal({ open, handleClose, position, onAdd }) {
   const { auth } = useContext(AuthContext);
   const [form, setForm] = useState({
     name: "",
-    type: "",
+    designation_name: "",
+    designation_number: "",
     sector: "",
-    association: "",
     site: "",
     info: "",
     address: "",
@@ -89,8 +89,8 @@ function AddUnionModal({ open, handleClose, position, onAdd }) {
 
   const handleSubmit = async () => {
     // Basic validation
-    const { name, type, sector, city, state, zip, address } = form;
-    if (!name || !type || !sector || !city || !state || !zip || !address) {
+    const { name, sector, city, state, zip, address } = form;
+    if (!name || !sector || !city || !state || !zip) {
       setError("Please fill in all required fields.");
       return;
     }
@@ -109,9 +109,9 @@ function AddUnionModal({ open, handleClose, position, onAdd }) {
       // Optionally, reset the form
       setForm({
         name: "",
-        type: "",
+        designation_name: "",
+        designation_number: "",
         sector: "",
-        association: "",
         site: "",
         info: "",
         address: "",
