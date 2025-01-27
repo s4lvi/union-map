@@ -112,24 +112,6 @@ function SearchFilter({ setUnions }) {
   return (
     <Grid container spacing={2} alignItems="center">
       <Grid item xs={12} sm={6} md={2}>
-        <TextField
-          label="ZIP Code"
-          name="zip"
-          value={filters.zip}
-          onChange={handleChange}
-          fullWidth
-        />
-      </Grid>
-      <Grid item xs={12} sm={6} md={2}>
-        <TextField
-          label="City"
-          name="city"
-          value={filters.city}
-          onChange={handleChange}
-          fullWidth
-        />
-      </Grid>
-      <Grid item xs={12} sm={6} md={2}>
         <FormControl fullWidth>
           <InputLabel id="state-filter-label">State</InputLabel>
           <Select
@@ -178,6 +160,24 @@ function SearchFilter({ setUnions }) {
           fullWidth
         />
       </Grid>
+      <Grid item xs={6} sm={3} md={1}>
+        <TextField
+          label="ZIP Code"
+          name="zip"
+          value={filters.zip}
+          onChange={handleChange}
+          fullWidth
+        />
+      </Grid>
+      <Grid item xs={12} sm={6} md={2}>
+        <TextField
+          label="City"
+          name="city"
+          value={filters.city}
+          onChange={handleChange}
+          fullWidth
+        />
+      </Grid>
       <Grid item xs={12} sm={6} md={2}>
         <TextField
           label="Radius (miles)"
@@ -188,7 +188,7 @@ function SearchFilter({ setUnions }) {
           fullWidth
         />
       </Grid>
-      <Grid item xs={12} sm={12} md={2}>
+      <Grid item xs={6} sm={6} md={1}>
         <Button
           variant="contained"
           color="primary"
