@@ -20,11 +20,64 @@ const sectorOptions = [
   "Other",
 ];
 
+const stateOptions = [
+  "Alabama",
+  "Alaska",
+  "Arizona",
+  "Arkansas",
+  "California",
+  "Colorado",
+  "Connecticut",
+  "Delaware",
+  "Florida",
+  "Georgia",
+  "Hawaii",
+  "Idaho",
+  "Illinois",
+  "Indiana",
+  "Iowa",
+  "Kansas",
+  "Kentucky",
+  "Louisiana",
+  "Maine",
+  "Maryland",
+  "Massachusetts",
+  "Michigan",
+  "Minnesota",
+  "Mississippi",
+  "Missouri",
+  "Montana",
+  "Nebraska",
+  "Nevada",
+  "New Hampshire",
+  "New Jersey",
+  "New Mexico",
+  "New York",
+  "North Carolina",
+  "North Dakota",
+  "Ohio",
+  "Oklahoma",
+  "Oregon",
+  "Pennsylvania",
+  "Rhode Island",
+  "South Carolina",
+  "South Dakota",
+  "Tennessee",
+  "Texas",
+  "Utah",
+  "Vermont",
+  "Virginia",
+  "Washington",
+  "West Virginia",
+  "Wisconsin",
+  "Wyoming",
+].sort();
+
 function SearchFilter({ setUnions }) {
   const [filters, setFilters] = useState({
     zip: "",
     city: "",
-    type: "",
+    state: "Michigan",
     sector: "",
     designation_name: "",
     radius: "",
@@ -75,6 +128,24 @@ function SearchFilter({ setUnions }) {
           onChange={handleChange}
           fullWidth
         />
+      </Grid>
+      <Grid item xs={12} sm={6} md={2}>
+        <FormControl fullWidth>
+          <InputLabel id="state-filter-label">State</InputLabel>
+          <Select
+            labelId="state-filter-label"
+            name="state"
+            value={filters.state}
+            label="State"
+            onChange={handleChange}
+          >
+            {stateOptions.map((state) => (
+              <MenuItem key={state} value={state}>
+                {state}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
       </Grid>
       <Grid item xs={12} sm={6} md={2}>
         <FormControl fullWidth>
