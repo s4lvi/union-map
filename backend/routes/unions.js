@@ -64,7 +64,9 @@ const states = [
 router.get("/", async (req, res) => {
   let { city, state, sector, zip, radius } = req.query;
   let query = {};
-
+  if (!state) {
+    state = "Michigan";
+  }
   if (state) {
     const stateParam = state.trim();
     const matchedState = states.find(
