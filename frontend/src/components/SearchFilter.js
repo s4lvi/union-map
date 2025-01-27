@@ -88,12 +88,12 @@ function SearchFilter({ setUnions }) {
   };
 
   const handleSearch = async () => {
-    const { zip, city, type, sector, designation_name, radius } = filters;
+    const { zip, city, state, sector, designation_name, radius } = filters;
     const params = {};
 
     if (zip) params.zip = zip;
     if (city) params.city = city;
-    if (type) params.type = type;
+    if (state) params.state = state;
     if (sector) params.sector = sector;
     if (designation_name) params.designation_name = designation_name;
     if (radius) {
@@ -171,7 +171,7 @@ function SearchFilter({ setUnions }) {
 
       <Grid item xs={12} sm={6} md={2}>
         <TextField
-          label="Designation Name"
+          label="Type"
           name="designation_name"
           value={filters.designation_name}
           onChange={handleChange}

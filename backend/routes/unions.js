@@ -64,6 +64,7 @@ const states = [
 router.get("/", async (req, res) => {
   let { city, state, sector, zip, radius } = req.query;
   let query = {};
+  console.log(state);
   if (!state) {
     state = "Michigan";
   }
